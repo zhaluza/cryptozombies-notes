@@ -13,12 +13,55 @@ of these concepts.
 
 ## Table of Contents
 
-- [Lesson 1](#lesson-1-solidity-basics)
-- [Lesson 2](#lesson-2)
+- [Lesson 1: Solidity Basics](#lesson-1-solidity-basics)
+  - [Contracts](#contracts)
+  - [State Variables And Integers](#state-variables-and-integers)
+    - [State Variables](#state-variables)
+    - [Unsigned Integers: `uint`](#unsigned-integers-uint)
+  - [Math Operations](#math-operations)
+  - [Structs](#structs)
+  - [Arrays](#arrays)
+  - [Function Declarations](#function-declarations)
+    - [Reference Types](#reference-types)
+  - [Working with Structs And Arrays](#working-with-structs-and-arrays)
+  - [Private And Public Functions](#private-and-public-functions)
+  - [Internal And External Functions](#internal-and-external-functions)
+  - [More on Functions](#more-on-functions)
+    - [Return values](#return-values)
+    - [Functions modifiers](#function-modifiers)
+  - [Keccak256 And Typecasting](#keccak256-and-typecasting)
+    - [`keccak256`](#keccak256)
+    - [Typecasting](#typecasting)
+  - [Events](#events)
+  - [Web3.js](#web3.js)
+- [Lesson 2: Beyond Basics](#lesson-2-beyond-basics)
+  - [Mappings And Addresses](#mappings-and-addresses)
+    - [Addresses](#addresses)
+    - [Mappings](#mappings)
+  - [Msg.sender](#msg.sender)
+  - [Require](#require)
+  - [Inheritance](#inheritance)
+  - [Import](#import)
+  - [Storage vs. Memory (Data Location)](#storage-vs-memory-data-location)
+  - [Interacting With Other Contracts](#interacting-with-other-contracts)
+  - [Using an Interface](#using-an-interface)
+  - [Handling Multiple Return Values](#handling-multiple-return-values)
+  - [If Statements](#if-statements)
+- [Lesson 3: Advanced Solidity Concepts](#lesson-3-advanced-solidity-concepts)
+  - [Immutability of Contracts](#immutability-of-contracts)
+  - [Ownable Contracts](#ownable-contracts)
+  - [Function Modifiers](#function-modifiers)
+  - [Gas](#gas)
+    - [What's Gas?](#what's-gas)
+    - [Why Is Gas Necessary?](#why-is-gas-necessary)
+    - [How to Save Gas by Packing Structs](#how-to-save-gas-by-packing-structs)
+  - [Time Units](#time-units)
+  - [Passing Structs as Arguments](#passing-structs-as-arguments)
+  - [More on Function Modifiers](#more-on-function-modifiers)
 
 ## Lesson 1: Solidity Basics
 
-### [Contracts (Chapter 2)](https://cryptozombies.io/en/lesson/1/chapter/2)
+### [Contracts](https://cryptozombies.io/en/lesson/1/chapter/2)
 
 Solidity's code is encapsulated in contracts. A contract is the fundamental
 building block of Ethereum applications — all variables and functions belong to
@@ -48,7 +91,7 @@ contract HelloWorld {
 }
 ```
 
-### [State Variables & Integers (Chapter 3)](https://cryptozombies.io/en/lesson/1/chapter/3)
+### [State Variables And Integers](https://cryptozombies.io/en/lesson/1/chapter/3)
 
 #### State Variables
 
@@ -79,7 +122,7 @@ _non-negative_. For signed integers, you can use the `int` type.
 also use uints with fewer bits (`uint8`, `uint16`, `uint32`...) to be more
 cost-efficient, which we'll also discuss later.
 
-### [Math Operations (Chapter 4)](https://cryptozombies.io/en/lesson/1/chapter/4)
+### [Math Operations](https://cryptozombies.io/en/lesson/1/chapter/4)
 
 Solidity supports the same math operations you'd expect from a programming
 language:
@@ -91,7 +134,7 @@ language:
 - Modulus / remainder: x % y
 - Exponents: x \*\* 2
 
-### [Structs (Chapter 5)](https://cryptozombies.io/en/lesson/1/chapter/5)
+### [Structs](https://cryptozombies.io/en/lesson/1/chapter/5)
 
 A `struct` is a complex data type that has multiple properties:
 
@@ -102,7 +145,7 @@ struct Person {
 }
 ```
 
-### [Arrays (Chapter 6)](https://cryptozombies.io/en/lesson/1/chapter/6)
+### [Arrays](https://cryptozombies.io/en/lesson/1/chapter/6)
 
 Arrays in Solidity are similar to arrays in JavaScript.
 
@@ -179,7 +222,7 @@ There are two ways to pass arguments to Solidity functions:
   value. If the function changes the value of the variable received, the
   original variable is also mutated.
 
-### [Working with Structs & Arrays](https://cryptozombies.io/en/lesson/1/chapter/8)
+### [Working with Structs And Arrays](https://cryptozombies.io/en/lesson/1/chapter/8)
 
 Let's look back at the `Person` struct we created earlier:
 
@@ -218,7 +261,7 @@ numbers.push(15);
 // numbers is now equal to [5, 10, 15]
 ```
 
-### [Private & Public Functions](https://cryptozombies.io/en/lesson/1/chapter/9)
+### [Private And Public Functions](https://cryptozombies.io/en/lesson/1/chapter/9)
 
 In Solidity, functions are `public` by default. This means that anyone (or any
 other contract) can call your contract's function and execute its code.
@@ -244,7 +287,7 @@ add to the `numbers` array.
 Note the `_` at the beginning of `\_addToArray. Just like with function
 parameters, it's customary to start private functions with an underscore.
 
-### [Internal and External Functions](https://cryptozombies.io/en/lesson/2/chapter/9)
+### [Internal And External Functions](https://cryptozombies.io/en/lesson/2/chapter/9)
 
 Solidity also provides us with two more types of visibility for functions:
 `internal` and `external`.
@@ -292,7 +335,7 @@ function _multiply(uint a, uint b) private pure returns (uint) {
 }
 ```
 
-### [Keccak256 & Typecasting](https://cryptozombies.io/en/lesson/1/chapter/11)
+### [Keccak256 And Typecasting](https://cryptozombies.io/en/lesson/1/chapter/11)
 
 #### `keccak256`
 
@@ -322,7 +365,7 @@ uint8 c = a * b;
 uint8 c = a * uint8(b);
 ```
 
-## [Events](https://cryptozombies.io/en/lesson/1/chapter/13)
+### [Events](https://cryptozombies.io/en/lesson/1/chapter/13)
 
 Events let your contract communicate with your app's frontend, which can listen
 for certain events and perform actions when they happen.
@@ -348,7 +391,7 @@ YourContract.IntegersAdded(function (error, result) {
 });
 ```
 
-## [Web3.js](https://cryptozombies.io/en/lesson/1/chapter/14)
+### [Web3.js](https://cryptozombies.io/en/lesson/1/chapter/14)
 
 Ethereum has a JavaScript library called
 [Web3.js](https://web3js.readthedocs.io/en/v1.2.11/index.html).
@@ -445,9 +488,9 @@ function generateZombie(id, name, dna) {
 }
 ```
 
-## Lesson 2
+## Lesson 2: Beyond Basics
 
-### [Mappings & Addresses](https://cryptozombies.io/en/lesson/2/chapter/2)
+### [Mappings And Addresses](https://cryptozombies.io/en/lesson/2/chapter/2)
 
 #### Addresses
 
@@ -880,7 +923,7 @@ Some things inside this contract that we haven't seen before:
 start with a copy/paste of this Ownable contract, and then their first contract
 inherits from it.
 
-#### [Function Modifiers](https://cryptozombies.io/en/lesson/3/chapter/3)
+### [Function Modifiers](https://cryptozombies.io/en/lesson/3/chapter/3)
 
 Let's delve a little deeper into function modifiers.
 
