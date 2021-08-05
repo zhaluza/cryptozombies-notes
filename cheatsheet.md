@@ -2,6 +2,7 @@
 
 - [4 Types of Visibility for Functions & State Variables](#4-types-of-visibility-for-functions-&-state-variables)
 - [Function Modifiers](#function-modifiers)
+- [Storage vs. Memory](#storage-vs-memory)
 
 ## [4 Types of Visibility for Functions & State Variables](https://docs.soliditylang.org/en/v0.8.6/contracts.html)
 
@@ -74,3 +75,12 @@ function _multiply(uint a, uint b) private pure returns (uint) {
   return a * b;
 }
 ```
+
+## Storage vs. Memory
+
+In Solidity, there are two locations you can store variables — in storage and
+in memory.
+
+Storage refers to variables stored permanently on the blockchain. Memory
+variables are temporary, and are erased between external function calls to your
+contract. Think of it like your computer's hard disk vs RAM.
