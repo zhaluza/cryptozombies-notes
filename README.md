@@ -244,6 +244,18 @@ add to the `numbers` array.
 Note the `_` at the beginning of `\_addToArray. Just like with function
 parameters, it's customary to start private functions with an underscore.
 
+### [Internal and External Functions](https://cryptozombies.io/en/lesson/2/chapter/9)
+
+Solidity also provides us with two more types of visibility for functions:
+`internal` and `external`.
+
+`internal` is the same as `private`, but with one bonus: it's also accessible
+to contracts that inherit from this contract.
+
+`external` is similar to `public`, but `external` functions can **only** be
+called outside the contract. Unlike `public`, they can't be called by other
+functions inside that contract.
+
 ### [More on Functions](https://cryptozombies.io/en/lesson/1/chapter/10)
 
 #### Return values
@@ -505,7 +517,7 @@ Using `msg.sender` gives you the security of the Ethereum blockchain. A
 malicious party can only modify someone else's data if they steal the private
 key associated with their Ethereum address.
 
-## [Require](https://cryptozombies.io/en/lesson/2/chapter/4)
+### [Require](https://cryptozombies.io/en/lesson/2/chapter/4)
 
 A `require` statement forces a function to throw an error and stop executing if
 some condition is not true.
@@ -528,7 +540,7 @@ execute.
 Therefore require is quite useful for verifying certain conditions that must be
 true before running a function.
 
-## [Inheritance](https://cryptozombies.io/en/lesson/2/chapter/5)
+### [Inheritance](https://cryptozombies.io/en/lesson/2/chapter/5)
 
 To avoid cramming a single contract full of related functions and logic, you
 can split your code across multiple contracts. Solidity lets you do this easily
@@ -555,3 +567,148 @@ public functions we may define on Doge).
 This can be used for logical inheritance (such as with a subclass, a Cat is an
 Animal). But it can also be used simply for organizing your code by grouping
 similar logic together into different contracts.
+
+### [Import](https://cryptozombies.io/en/lesson/2/chapter/6)
+
+If you need to refer to functions in another contract (e.g. if you're creating
+a contract that inherits from another, or if you need to access a public
+function from a contract), you can use the `import` keyword.
+
+```solidity
+import "./someothercontract.sol";
+
+contract newContract is SomeOtherContract {
+
+}
+```
+
+### [Storage vs. Memory (Data Location)](https://cryptozombies.io/en/lesson/2/chapter/7)
+
+In Solidity, there are two locations you can store variables — in storage and
+in memory.
+
+Storage refers to variables stored permanently on the blockchain. Memory
+variables are temporary, and are erased between external function calls to your
+contract. Think of it like your computer's hard disk vs RAM.
+
+Solidity handles these by default, so you _usually_ don't need to use them.
+
+- _State variables_ (variables declared outside functions) are by default
+  `storage` and written permanently to the blockchain.
+- _Variables declared inside functions_ are `memory` and will disappear when
+  the function call ends.
+
+However, you need to use these keywords when dealing with **structs** and
+**arrays** within functions:
+
+```solidity
+contract SandwichFactory {
+  struct Sandwich {
+    string name;
+    string status;
+  }
+
+  Sandwich[] sandwiches;
+
+  function eatSandwich(uint _index) public {
+    // Sandwich mySandwich = sandwiches[_index];
+
+    // ^ Seems pretty straightforward, but solidity will give you a warning
+    // telling you that you should explicitly declare `storage` or `memory` here.
+
+    // So instead, you should declare with the `storage` keyword, like:
+    Sandwich storage mySandwich = sandwiches[_index];
+    // ...in which case `mySandwich` is a pointer to `sandwiches[_index]`
+    // in storage, and...
+    mySandwich.status = "Eaten!";
+    // ...this will permanently change `sandwiches[_index]` on the blockchain.
+
+    // If you just want a copy, you can use `memory`:
+    Sandwich memory anotherSandwich = sandwiches[_index + 1];
+    // ...in which case `anotherSandwich` will simply be a copy of the
+    // data in memory, and...
+    anotherSandwich.status = "Eaten!";
+    // ...will just modify the temporary variable and have no effect
+    // on `sandwiches[_index + 1]`. But you can do this:
+    sandwiches[_index + 1] = anotherSandwich;
+    // ...if you want to copy the changes back into blockchain storage.
+  }
+}
+```
+
+### [Interacting With Other Contracts](https://cryptozombies.io/en/lesson/2/chapter/10)
+
+For one of your contracts to talk to another contract on the blockchain that
+you don't own, you need to define an **interface**.
+
+Here's a simple example. Let's imagine that there's a contract on the
+blockchain called `LuckyNumber`:
+
+```solidity
+contract LuckyNumber {
+  mapping(address => uint) numbers;
+
+  function setNum(uint _num) public {
+    numbers[msg.sender] = _num;
+  }
+
+  function getNum(address _myAddress) public view returns (uint) {
+    return numbers[_myAddress];
+  }
+}
+```
+
+This is a simple contract where you can store your lucky number and associate
+it with your Ethereum address. Anyone could then look up your lucky number
+using your address.
+
+Now let's imagine we have a contract that wants to read the data in this
+contract using the _public_ `getNum` function.
+
+First, we need to define an **interface** of the `LuckyNumber` contract:
+
+```solidity
+contract NumberInterface {
+  function getNum(address _myAddress) public view returns (uint);
+}
+```
+
+This looks _a lot_ like we're defining a contract, but there are a few
+differences:
+
+- We're only declaring the functions we want to interact with — in this case
+  `getNum` — and we don't mention any of the other functions or state
+  variables.
+- We're not defining the function bodies. Instead of curly braces (`{` and
+  `}`), we're simply ending the function declaration with a semi-colon (`;`).
+
+It does look like a contract skeleton. This is how the compiler knows it's an
+interface.
+
+By including this interface in our dapp's code our contract knows what the
+other contract's functions look like, how to call them, and what sort of
+response to expect.
+
+### [Using an Interface](https://cryptozombies.io/en/lesson/2/chapter/11)
+
+Now that we've defined our `NumberInterface` (see the above section), we can
+use it in a contract:
+
+```solidity
+contract MyContract {
+  address NumberInterfaceAddress = 0xab38...
+  // ^ The address of the FavoriteNumber contract on Ethereum
+  NumberInterface numberContract = NumberInterface(NumberInterfaceAddress);
+  // Now `numberContract` is pointing to the other contract
+
+  function someFunction() public {
+    // Now we can call `getNum` from that contract:
+    uint num = numberContract.getNum(msg.sender);
+    // ...and do something with `num` here
+  }
+}
+```
+
+Using this pattern, our contracts can interact with any other contract on the
+Ethereum blockchain, as long as they expose functions as `public` or
+`external`.
