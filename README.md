@@ -11,7 +11,12 @@ of these concepts.
 
 - [Official Solidity Cheatsheet](https://docs.soliditylang.org/en/v0.8.6/cheatsheet.html)
 
-## Lesson 1: Making the Zombie Factory
+## Table of Contents
+
+- [Lesson 1](#lesson-1-solidity-basics)
+- [Lesson 2](#lesson-2)
+
+## Lesson 1: Solidity Basics
 
 ### [Contracts (Chapter 2)](https://cryptozombies.io/en/lesson/1/chapter/2)
 
@@ -139,7 +144,7 @@ Person[] public people;
 Other contracts could then **read** from this array, but _not_ **write** to it.
 This makes it a useful pattern for storing public data in your contracts.
 
-## [Function Declarations (Chapter 7)](https://cryptozombies.io/en/lesson/1/chapter/7)
+### [Function Declarations](https://cryptozombies.io/en/lesson/1/chapter/7)
 
 Function declarations in Solidity look like this:
 
@@ -161,7 +166,7 @@ _Why do both parameters start with an underscore?_ It's convention to start a
 function parameter variable name with an underscore (e.g. `_name` instead of
 `name`) _to differentiate them from global variables._
 
-### Reference Types
+#### Reference Types
 
 In Solidity, a `string` is a reference type, while a `uint` is a value type.
 
@@ -174,7 +179,7 @@ There are two ways to pass arguments to Solidity functions:
   value. If the function changes the value of the variable received, the
   original variable is also mutated.
 
-## [Working with Structs & Arrays (Chapter 8)](https://cryptozombies.io/en/lesson/1/chapter/8)
+### [Working with Structs & Arrays](https://cryptozombies.io/en/lesson/1/chapter/8)
 
 Let's look back at the `Person` struct we created earlier:
 
@@ -213,7 +218,7 @@ numbers.push(15);
 // numbers is now equal to [5, 10, 15]
 ```
 
-## [Private & Public Functions](https://cryptozombies.io/en/lesson/1/chapter/9)
+### [Private & Public Functions](https://cryptozombies.io/en/lesson/1/chapter/9)
 
 In Solidity, functions are `public` by default. This means that anyone (or any
 other contract) can call your contract's function and execute its code.
@@ -239,9 +244,9 @@ add to the `numbers` array.
 Note the `_` at the beginning of `\_addToArray. Just like with function
 parameters, it's customary to start private functions with an underscore.
 
-## [More on Functions](https://cryptozombies.io/en/lesson/1/chapter/10)
+### [More on Functions](https://cryptozombies.io/en/lesson/1/chapter/10)
 
-### Return values
+#### Return values
 
 If a function returns a value, you should also specify the type when declaring
 the function:
@@ -254,7 +259,7 @@ function sayHello() public returns (string memory) {
 }
 ```
 
-### Function modifiers
+#### Function modifiers
 
 The above function (`sayHello`) doesn't modify state — it just returns a
 pre-existing state variable. Therefore, it can be declared a `view` function:
@@ -275,9 +280,9 @@ function _multiply(uint a, uint b) private pure returns (uint) {
 }
 ```
 
-## [Keccak256 & Typecasting](https://cryptozombies.io/en/lesson/1/chapter/11)
+### [Keccak256 & Typecasting](https://cryptozombies.io/en/lesson/1/chapter/11)
 
-### `keccak256`
+#### `keccak256`
 
 `keccak256` is a hash function built into Ethereum and is a version of SHA3. It
 has many purposes in Ethereum, but we'll use it to randomly generate a number.
@@ -304,3 +309,249 @@ uint8 c = a * b;
 // we have to typecast b as a uint8 to make it work:
 uint8 c = a * uint8(b);
 ```
+
+## [Events](https://cryptozombies.io/en/lesson/1/chapter/13)
+
+Events let your contract communicate with your app's frontend, which can listen
+for certain events and perform actions when they happen.
+
+```solidity
+// declare the event
+event IntegersAdded(uint x, uint y, uint result);
+
+function add(uint _x, uint _y) public returns (uint) {
+  uint result = _x + _y;
+  // fire an event to let the app know the function was called:
+  emit IntegersAdded(_x, _y, result);
+  return result;
+}
+```
+
+A JavaScript implementation for this event on the frontend could look something
+like this:
+
+```javascript
+YourContract.IntegersAdded(function (error, result) {
+  // do something with result
+});
+```
+
+## [Web3.js](https://cryptozombies.io/en/lesson/1/chapter/14)
+
+Ethereum has a JavaScript library called
+[Web3.js](https://web3js.readthedocs.io/en/v1.2.11/index.html).
+
+We'll go into this later, but here's an example of how a frontend could use the
+library to interact with a smart contract.
+
+**Contract**
+
+```solidity
+pragma solidity ^0.4.25;
+
+contract ZombieFactory {
+
+    event NewZombie(uint zombieId, string name, uint dna);
+
+    uint dnaDigits = 16;
+    uint dnaModulus = 10 ** dnaDigits;
+
+    struct Zombie {
+        string name;
+        uint dna;
+    }
+
+    Zombie[] public zombies;
+
+    function _createZombie(string _name, uint _dna) private {
+        uint id = zombies.push(Zombie(_name, _dna)) - 1;
+        emit NewZombie(id, _name, _dna);
+    }
+
+    function _generateRandomDna(string _str) private view returns (uint) {
+        uint rand = uint(keccak256(abi.encodePacked(_str)));
+        return rand % dnaModulus;
+    }
+
+    function createRandomZombie(string _name) public {
+        uint randDna = _generateRandomDna(_name);
+        _createZombie(_name, randDna);
+    }
+
+}
+```
+
+**Frontend, using Web3.js**
+
+```javascript
+// Here's how we would access our contract:
+var abi = /* abi generated by the compiler */
+var ZombieFactoryContract = web3.eth.contract(abi)
+var contractAddress = /* our contract address on Ethereum after deploying */
+var ZombieFactory = ZombieFactoryContract.at(contractAddress)
+// `ZombieFactory` has access to our contract's public functions and events
+
+// some sort of event listener to take the text input:
+$("#ourButton").click(function(e) {
+  var name = $("#nameInput").val()
+  // Call our contract's `createRandomZombie` function:
+  ZombieFactory.createRandomZombie(name)
+})
+
+// Listen for the `NewZombie` event, and update the UI
+var event = ZombieFactory.NewZombie(function(error, result) {
+  if (error) return
+  generateZombie(result.zombieId, result.name, result.dna)
+})
+
+// take the Zombie dna, and update our image
+function generateZombie(id, name, dna) {
+  let dnaStr = String(dna)
+  // pad DNA with leading zeroes if it's less than 16 characters
+  while (dnaStr.length < 16)
+    dnaStr = "0" + dnaStr
+
+  let zombieDetails = {
+    // first 2 digits make up the head. We have 7 possible heads, so % 7
+    // to get a number 0 - 6, then add 1 to make it 1 - 7. Then we have 7
+    // image files named "head1.png" through "head7.png" we load based on
+    // this number:
+    headChoice: dnaStr.substring(0, 2) % 7 + 1,
+    // 2nd 2 digits make up the eyes, 11 variations:
+    eyeChoice: dnaStr.substring(2, 4) % 11 + 1,
+    // 6 variations of shirts:
+    shirtChoice: dnaStr.substring(4, 6) % 6 + 1,
+    // last 6 digits control color. Updated using CSS filter: hue-rotate
+    // which has 360 degrees:
+    skinColorChoice: parseInt(dnaStr.substring(6, 8) / 100 * 360),
+    eyeColorChoice: parseInt(dnaStr.substring(8, 10) / 100 * 360),
+    clothesColorChoice: parseInt(dnaStr.substring(10, 12) / 100 * 360),
+    zombieName: name,
+    zombieDescription: "A Level 1 CryptoZombie",
+  }
+  return zombieDetails
+}
+```
+
+## Lesson 2
+
+### [Mappings & Addresses](https://cryptozombies.io/en/lesson/2/chapter/2)
+
+#### Addresses
+
+The Ethereum blockchain is made up of accounts (like bank accounts). Each
+account has a balance of [Ether](https://en.wikipedia.org/wiki/Ethereum#Ether).
+You can send and receive Ether payments to other accounts (just like a bank
+account can wire money to and receive transfers from other accounts).
+
+Each account has an `address` — similar to an account number. It looks like
+this:
+
+```
+0x0cE446255506E92DF41614C46F1d6df9Cc969183
+```
+
+For now, know that each address is owned by a specific **user** or **smart
+contract**.
+
+#### Mappings
+
+We've already covered **structs** and **arrays**. **Mappings** are another way
+to store organized data in Solidity. They're essentially key-value pairs, like
+JavaScript objects with only one entry.
+
+```solidity
+// For a financial app, storing a uint that holds the user's account balance:
+mapping (address => uint) public accountBalance;
+// Or could be used to store / lookup usernames based on userId
+mapping (uint => string) userIdToName;
+```
+
+In the first example, the _key_ is an `address`, and the _value_ is a `uint`.
+In the second example, the _key_ is a `uint`, and the _value_ is a `string`.
+
+### [Msg.sender](https://cryptozombies.io/en/lesson/2/chapter/3)
+
+In Solidity, there are certain **global variables** that are available to all
+functions. One of these is `msg.sender`, which refers to the `address` of the
+_person_ or _smart contract_ who called the current function.
+
+`msg.sender` will always exist when calling a function, since all Solidity
+function executions start with an external caller.
+
+Here's an example of using `msg.sender` and updating a mapping:
+
+```solidity
+mapping (address => uint) favoriteNumber;
+
+function setMyNumber(uint _myNumber) public {
+  // Update our `favoriteNumber` mapping to store `_myNumber` under `msg.sender`
+  favoriteNumber[msg.sender] = _myNumber;
+  // ^ The syntax for storing data in a mapping is just like with arrays
+}
+
+function whatIsMyNumber() public view returns (uint) {
+  // Retrieve the value stored in the sender's address
+  // Will be `0` if the sender hasn't called `setMyNumber` yet
+  return favoriteNumber[msg.sender];
+}
+```
+
+In this example, anyone could call `setMyNumber` and store a `uint` in our
+contract, which would then be mapped to their address. When they then call
+`whatIsMyNumber`, the function will return the `uint` that they stored.
+
+Using `msg.sender` gives you the security of the Ethereum blockchain. A
+malicious party can only modify someone else's data if they steal the private
+key associated with their Ethereum address.
+
+## [Require](https://cryptozombies.io/en/lesson/2/chapter/4)
+
+A `require` statement forces a function to throw an error and stop executing if
+some condition is not true.
+
+```solidity
+function sayHiToVitalik(string memory _name) public returns (string memory) {
+  // Compares if _name equals "Vitalik". Throws an error and exits if not true.
+  // (Side note: Solidity doesn't have native string comparison, so we
+  // compare their keccak256 hashes to see if the strings are equal)
+  require(keccak256(abi.encodePacked(_name)) == keccak256(abi.encodePacked("Vitalik")));
+  // If it's true, proceed with the function:
+  return "Hi!";
+}
+```
+
+If you call this function with `sayHiToVitalik("Vitalik")`, it will return
+"Hi!". If you call it with any other input, it will throw an error and not
+execute.
+
+Therefore require is quite useful for verifying certain conditions that must be
+true before running a function.
+
+## [Inheritance](https://cryptozombies.io/en/lesson/2/chapter/5)
+
+To avoid cramming a single contract full of related functions and logic, you
+can split your code across multiple contracts. Solidity lets you do this easily
+with contract **inheritance**.
+
+```solidity
+contract Doge {
+  function catchphrase() public returns (string memory) {
+    return "So Wow CryptoDoge";
+  }
+}
+
+contract BabyDoge is Doge {
+  function anotherCatchphrase() public returns (string memory) {
+    return "Such Moon BabyDoge";
+  }
+}
+```
+
+BabyDoge inherits from Doge. That means if you compile and deploy BabyDoge, it
+will have access to both catchphrase() and anotherCatchphrase() (and any other
+public functions we may define on Doge).
+
+This can be used for logical inheritance (such as with a subclass, a Cat is an
+Animal). But it can also be used simply for organizing your code by grouping
+similar logic together into different contracts.
