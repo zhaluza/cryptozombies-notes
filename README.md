@@ -58,6 +58,11 @@ of these concepts.
   - [Time Units](#time-units)
   - [Passing Structs as Arguments](#passing-structs-as-arguments)
   - [More on Function Modifiers](#more-on-function-modifiers)
+  - [Saving Gas With `view` Functions](#saving-gas-with-view-functions)
+  - [Storage Is Expensive](#storage-is-expensive)
+    - [Declaring arrays in memory](#declaring-arrays-in-memory)
+  - [For Loops](#for-loops)
+- [Lesson 4](#lesson-4)
 
 ## Lesson 1: Solidity Basics
 
@@ -1132,3 +1137,103 @@ Notice that...
 
 - The `olderThan` modifier takes arguments just like a function does
 - The `driveCar` function passes its arguments to the modifier
+
+### [Saving Gas With `view` Functions](https://cryptozombies.io/en/lesson/3/chapter/10)
+
+View functions don't cost gas when called externally by a user.
+
+This is because view functions don't actually change anything on the blockchain
+– they only read the data. So marking a function with view tells web3.js that
+it only needs to query your local Ethereum node to run the function, and it
+doesn't actually have to create a transaction on the blockchain (which would
+need to be run on every single node, and cost gas).
+
+However, if a view function is called internally from another function in the
+same contract that is not a view function, it will still cost gas. This is
+because the other function creates a transaction on Ethereum, and will still
+need to be verified from every node. So **view functions are only free when
+they're called externally.**
+
+### [Storage Is Expensive](#https://cryptozombies.io/en/lesson/3/chapter/11)
+
+Using `storage` is one of the more expensive operations in Solidity,
+particularly writes.
+
+This is because every time you write or change a piece of data, it’s written
+permanently to the blockchain. Forever! Thousands of nodes across the world
+need to store that data on their hard drives, and this amount of data keeps
+growing over time as the blockchain grows. So there's a cost to doing that.
+
+In order to keep costs down, you want to avoid writing data to storage except
+when absolutely necessary. Sometimes this involves seemingly inefficient
+programming logic — like rebuilding an array in memory every time a function is
+called instead of simply saving that array in a variable for quick lookups.
+
+In most programming languages, looping over large data sets is expensive. But
+in Solidity, this is _much cheaper_ than using storage if it's in an _external
+view function_, since view functions don't cost your users any gas. (And gas
+costs your users real money!).
+
+#### Declaring arrays in memory
+
+You can use the memory keyword with arrays to create a new array inside a
+function without needing to write anything to storage. The array will only
+exist until the end of the function call, and this is a lot cheaper gas-wise
+than updating an array in storage — free if it's a view function called
+externally.
+
+Here's how to declare an array in memory:
+
+```solidity
+function getArray() external pure returns(uint[] memory) {
+  // Instantiate a new array in memory with a length of 3
+  uint[] memory values = new uint[](3);
+
+  // Put some values to it
+  values[0] = 1;
+  values[1] = 2;
+  values[2] = 3;
+
+  return values;
+}
+```
+
+This is a trivial example just to show you the syntax, but in the next chapter
+we'll look at combining this with for loops for real use-cases.
+
+_Note: memory arrays must be created with a length argument (in this example,
+3). They currently cannot be resized like storage arrays can with array.push(),
+although this may be changed in a future version of Solidity._
+
+### [For Loops](https://cryptozombies.io/en/lesson/3/chapter/12)
+
+As mentioned above, it can be more gas-efficient to use a `for` loop to build
+the contents of an array in a function rather than simply saving that array to
+storage.
+
+The syntax of for loops in Solidity is similar to JavaScript.
+
+Let's look at an example where we want to make an array of even numbers:
+
+```solidity
+function getEvens() pure external returns(uint[] memory) {
+  uint[] memory evens = new uint[](5);
+  // Keep track of the index in the new array:
+  uint counter = 0;
+  // Iterate 1 through 10 with a for loop:
+  for (uint i = 1; i <= 10; i++) {
+    // If `i` is even...
+    if (i % 2 == 0) {
+      // Add it to our array
+      evens[counter] = i;
+      // Increment counter to the next empty index in `evens`:
+      counter++;
+    }
+  }
+  return evens;
+}
+```
+
+This function will return an array with the contents [2, 4, 6, 8, 10].
+
+## Lesson 4
