@@ -796,6 +796,8 @@ function eatBLT(string memory sandwich) public {
   // to check equality
   if (keccak256(abi.encodePacked(sandwich)) == keccak256(abi.encodePacked("BLT"))) {
     eat();
+  } else {
+    // Do something else
   }
 }
 ```
