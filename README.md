@@ -63,6 +63,22 @@ of these concepts.
     - [Declaring arrays in memory](#declaring-arrays-in-memory)
   - [For Loops](#for-loops)
 - [Lesson 4: Payments And Other Advanced Concepts](#lesson-4-payments-and-other-advanced-concepts)
+  - [Payable](#payable)
+    - [A review of function modifiers](#a-review-of-function-modifiers)
+    - [The `payable` modifier](#the-payable-modifier)
+  - [Withdraws](#withdraws)
+  - [Random Numbers](#random-numbers)
+- [Lesson 5: ERC721 And Crypto-Collectibles](#lesson-5-ERC721-and-crypto-collectibles)
+  - [Tokens on Ethereum](#tokens-on-ethereum)
+    - [Why does it matter?](#why-does-it-matter)
+    - [Other token standards](#other-token-standards)
+  - [ERC721 Standard, Multiple Inheritance](#ERC721-standard-multiple-inheritance)
+    - [Implementing a token contract](#implementing-a-token-contract)
+  - [`balanceOf` and `ownerOf`](#balanceOf-and-ownerOf)
+    - [`balanceOf`](#balanceof)
+    - [`ownerOf`](#ownerof)
+  - [`transferFrom` and `approve`: Transfer Logic](#transferfrom-and-approve-transfer-logic)
+  - [Emitting the `Approval` Event](#emitting-the-approval-event)
 
 ## Lesson 1: Solidity Basics
 
@@ -1309,9 +1325,12 @@ ether is a built-in unit.
 What happens here is that someone would call the function from web3.js (from
 the DApp's JavaScript front-end) as follows:
 
-```
+```javascript
 // Assuming `OnlineStore` points to your contract on Ethereum:
-OnlineStore.buySomething({from: web3.eth.defaultAccount, value: web3.utils.toWei(0.001)})
+OnlineStore.buySomething({
+  from: web3.eth.defaultAccount,
+  value: web3.utils.toWei(0.001),
+});
 ```
 
 Notice the `value` field, where the javascript function call specifies how much
@@ -1325,7 +1344,7 @@ above, the function will reject your transaction._
 
 ### [Withdraws](https://cryptozombies.io/en/lesson/4/chapter/2)
 
-n the previous chapter, we learned how to send Ether to a contract. So what
+In the previous chapter, we learned how to send Ether to a contract. So what
 happens after you send it?
 
 After you send Ether to a contract, it gets stored in the contract's Ethereum
@@ -1443,7 +1462,7 @@ So while this random number generation is NOT secure on Ethereum, in practice
 unless our random function has a lot of money on the line, the users of your
 game likely won't have enough resources to attack it.
 
-## Lesson 5: ERC721 & Crypto-Collectibles
+## Lesson 5: ERC721 And Crypto-Collectibles
 
 ### [Tokens on Ethereum](https://cryptozombies.io/en/lesson/5/chapter/1)
 
