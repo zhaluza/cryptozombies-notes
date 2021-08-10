@@ -34,7 +34,7 @@ of these concepts.
     - [Typecasting](#typecasting)
   - [Events](#events)
   - [Web3.js](#web3.js)
-- [Lesson 2: Beyond Basics](#lesson-2-beyond-basics)
+- [Lesson 2: Beyond The Basics](#lesson-2-beyond-the-basics)
   - [Mappings And Addresses](#mappings-and-addresses)
     - [Addresses](#addresses)
     - [Mappings](#mappings)
@@ -509,7 +509,7 @@ function generateZombie(id, name, dna) {
 }
 ```
 
-## Lesson 2: Beyond Basics
+## Lesson 2: Beyond The Basics
 
 ### [Mappings And Addresses](https://cryptozombies.io/en/lesson/2/chapter/2)
 
