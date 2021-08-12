@@ -1,7 +1,7 @@
-# Cryptozombies Notes - A Crash Course in Solidity
+# CryptoZombies Notes - A Crash Course in Solidity
 
 Outlines all core Solidity concepts covered in the
-[Cryptozombies online course](https://cryptozombies.io/) (Lessons 1-5).
+[CryptoZombies online course](https://cryptozombies.io/) (Lessons 1-5).
 Consists of a mixture of lesson text and original summaries.
 
 Check out the [Solidity Cheatsheet](cheatsheet.md) for a quick summary of some
