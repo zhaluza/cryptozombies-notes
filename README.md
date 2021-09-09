@@ -9,7 +9,7 @@ of these concepts.
 
 ## Resources
 
-- [Official Solidity Cheatsheet](https://docs.soliditylang.org/en/v0.8.6/cheatsheet.html)
+- [Official Solidity Cheatsheet](https://docs.soliditylang.org/en/v0.8.7/cheatsheet.html)
 
 ## Table of Contents
 
